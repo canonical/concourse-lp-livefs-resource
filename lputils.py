@@ -14,7 +14,7 @@ from requests_oauthlib import OAuth1
 class DummyCredentialStore(CredentialStore):
     """This class provides oauth token and secret store"""
 
-    def __init__(self, oauth_token, oauth_token_secret, consumer_name="dummy"):
+    def __init__(self, consumer_name, oauth_token, oauth_token_secret):
         super(DummyCredentialStore, self).__init__(credential_save_failed=None)
         self.credentials = Credentials()
         self.credentials.consumer = SystemWideConsumer(consumer_name)
@@ -35,8 +35,8 @@ class DummyAuthorizationEngine(RequestTokenAuthorizationEngine):
     def __init__(
         self,
         service_root,
+        consumer_name,
         application_name=None,
-        consumer_name="dummy",
         allow_access_levels=None,
     ):
         super(DummyAuthorizationEngine, self).__init__(
@@ -45,12 +45,12 @@ class DummyAuthorizationEngine(RequestTokenAuthorizationEngine):
 
 
 def login_with_oauth(
-    oauth_token, oauth_token_secret, consumer_name="dummy", service_root="production"
+    consumer_name, oauth_token, oauth_token_secret, service_root="production"
 ) -> Tuple[Launchpad, AuthBase]:
     """This function provides launchpadlib Launchpad instance with existing
     OAuth token and secret passed from elsewhere."""
-    credstore = DummyCredentialStore(oauth_token, oauth_token_secret)
-    authengine = DummyAuthorizationEngine(service_root)
+    credstore = DummyCredentialStore(consumer_name, oauth_token, oauth_token_secret)
+    authengine = DummyAuthorizationEngine(service_root, consumer_name)
     lp = Launchpad.login_with(
         consumer_name,
         service_root,

@@ -17,6 +17,7 @@ output = sys.argv[1]
 
 livefs = src.get("livefs")
 arch = src.get("arch", "amd64")
+oauth_consumer_key = src.get("oauth_consumer_key")
 oauth_token = src.get("oauth_token")
 oauth_token_secret = src.get("oauth_token_secret")
 
@@ -27,7 +28,7 @@ owner, _, distro, series, name = livefs.split("/")
 if owner.startswith("~"):
     owner = owner[1:]
 
-lp, auth = lputils.login_with_oauth(oauth_token, oauth_token_secret)
+lp, auth = lputils.login_with_oauth(oauth_consumer_key, oauth_token, oauth_token_secret)
 distro = lp.distributions[distro]
 series = distro.getSeries(name_or_version=series)
 
