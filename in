@@ -20,6 +20,8 @@ arch = src.get("arch", "amd64")
 oauth_token = src.get("oauth_token")
 oauth_token_secret = src.get("oauth_token_secret")
 
+download_artifacts = params.get("download_artifacts", default=False)
+
 owner, _, distro, series, name = livefs.split("/")
 
 if owner.startswith("~"):
@@ -30,26 +32,27 @@ distro = lp.distributions[distro]
 series = distro.getSeries(name_or_version=series)
 
 build = lp.load(ref)
-files = build.getFileUrls()
 
-os.makedirs(output, exist_ok=True)
+if download_artifacts:
+    files = build.getFileUrls()
+    os.makedirs(output, exist_ok=True)
 
-failed = 0
-for file in files:
-    filename = urlparse(file).path.split("/")[-1]
-    print(f"Downloading: {filename}", file=sys.stderr)
-    with requests.get(file, stream=True, auth=auth) as g:
-        if not g.ok:
-            print(f"ERROR {filename}: {g.reason}", file=sys.stderr)
-            failed += 1
-            continue
+    failed = 0
+    for file in files:
+        filename = urlparse(file).path.split("/")[-1]
+        print(f"Downloading: {filename}", file=sys.stderr)
+        with requests.get(file, stream=True, auth=auth) as g:
+            if not g.ok:
+                print(f"ERROR {filename}: {g.reason}", file=sys.stderr)
+                failed += 1
+                continue
 
-        with open(os.path.join(output, filename), "wb") as f:
-            copyfileobj(g.raw, f)
+            with open(os.path.join(output, filename), "wb") as f:
+                copyfileobj(g.raw, f)
 
-if failed != 0:
-    print(f"ERROR: {failed} file(s) failed to download.", file=sys.stderr)
-    exit(1)
+    if failed != 0:
+        print(f"ERROR: {failed} file(s) failed to download.", file=sys.stderr)
+        exit(1)
 
 result = {
     "version": {"ref": str(build)},
