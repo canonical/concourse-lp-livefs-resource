@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+
+import sys
+import json
+import os
+import requests
+from urllib.parse import urlparse
+from shutil import copyfileobj
+import lputils
+
+payload = json.load(sys.stdin)
+
+src = payload["source"]
+ref = payload["version"]["ref"]
+params = payload["params"]
+output = sys.argv[1]
+
+livefs = src.get("livefs")
+arch = src.get("arch", "amd64")
+oauth_token = src.get("oauth_token")
+oauth_token_secret = src.get("oauth_token_secret")
+
+owner, _, distro, series, name = livefs.split("/")
+
+if owner.startswith("~"):
+    owner = owner[1:]
+
+lp, auth = lputils.login_with_oauth(oauth_token, oauth_token_secret)
+distro = lp.distributions[distro]
+series = distro.getSeries(name_or_version=series)
+
+build = lp.load(ref)
+files = build.getFileUrls()
+
+os.makedirs(output, exist_ok=True)
+
+failed = 0
+for file in files:
+    filename = urlparse(file).path.split("/")[-1]
+    print(f"Downloading: {filename}", file=sys.stderr)
+    with requests.get(file, stream=True, auth=auth) as g:
+        if not g.ok:
+            print(f"ERROR {filename}: {g.reason}", file=sys.stderr)
+            failed += 1
+            continue
+
+        with open(os.path.join(output, filename), "wb") as f:
+            copyfileobj(g.raw, f)
+
+if failed != 0:
+    print(f"ERROR: {failed} file(s) failed to download.", file=sys.stderr)
+    exit(1)
+
+result = {
+    "version": {"ref": str(build)},
+    "metadata": {"name": "link", "value": build.web_link},
+}
+
+json.dump(result, sys.stdout)
+print()

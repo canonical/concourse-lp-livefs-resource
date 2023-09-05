@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import sys
+import json
+import lputils
+
+payload = json.load(sys.stdin)
+
+src = payload["source"]
+params = payload["params"]
+
+livefs = src.get("livefs")
+arch = src.get("arch", "amd64")
+oauth_token = src.get("oauth_token")
+oauth_token_secret = src.get("oauth_token_secret")
+
+ppa = params.get("ppa")
+pocket = params.get("pocket", "Release")
+metadata = params.get("metadata", {})
+
+owner, _, distro, series, name = livefs.split("/")
+
+if owner.startswith("~"):
+    owner = owner[1:]
+
+lp, auth = lputils.login_with_oauth(oauth_token, oauth_token_secret)
+distro = lp.distributions[distro]
+if ppa:
+    archive = lp.archives.getByReference(reference=ppa)
+else:
+    archive = distro.main_archive
+series = distro.getSeries(name_or_version=series)
+das = series.getDistroArchSeries(archtag=arch)
+
+f = lp.livefses.getByName(distro_series=series, owner=lp.people[owner], name=name)
+build = f.requestBuild(
+    archive=archive,
+    distro_arch_series=das,
+    pocket=pocket.title(),
+    metadata_override=metadata,
+)
+
+result = {
+    "version": {"ref": str(build)},
+    "metadata": {"name": "link", "value": build.web_link},
+}
+
+json.dump(result, sys.stdout)
+print()
