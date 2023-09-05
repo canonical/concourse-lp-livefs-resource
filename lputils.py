@@ -50,10 +50,10 @@ def login_with_oauth(
     """This function provides launchpadlib Launchpad instance with existing
     OAuth token and secret passed from elsewhere."""
     credstore = DummyCredentialStore(oauth_token, oauth_token_secret)
-    authengine = DummyAuthorizationEngine(service_root="production")
+    authengine = DummyAuthorizationEngine(service_root)
     lp = Launchpad.login_with(
         consumer_name,
-        "production",
+        service_root,
         version="devel",
         credential_store=credstore,
         authorization_engine=authengine,
