@@ -19,6 +19,7 @@
 import sys
 import json
 import lputils
+import time
 
 payload = json.load(sys.stdin)
 
@@ -56,6 +57,16 @@ build = f.requestBuild(
     pocket=pocket.title(),
     metadata_override=metadata,
 )
+print(f"weblink: {build.web_link}")
+
+while not build.datebuilt:
+    print(f"buildstate: {build.buildstate}")
+    time.sleep(60)
+    build = lp.load(str(build)) # reload a resource
+
+if build.buildstate != "Successfully built":
+    print(f"ERROR: build {build.web_link} finished with {build.buildstate}")
+    exit(1)
 
 result = {
     "version": {"ref": str(build)},
