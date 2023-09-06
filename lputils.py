@@ -74,5 +74,5 @@ def login_with_oauth(
         credential_store=credstore,
         authorization_engine=authengine,
     )
-    auth = OAuth1(consumer_name, oauth_token, oauth_token_secret)
+    auth = OAuth1(consumer_name, "", oauth_token, oauth_token_secret)
     return lp, auth
