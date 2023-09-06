@@ -59,7 +59,7 @@ build = f.requestBuild(
 )
 print(f"weblink: {build.web_link}", file=sys.stderr)
 
-while not build.datebuilt and build.buildstate != "Uploading build":
+while not build.datebuilt or build.buildstate == "Uploading build":
     print(f"buildstate: {build.buildstate}", file=sys.stderr)
     time.sleep(60)
     build = lp.load(str(build)) # reload a resource
