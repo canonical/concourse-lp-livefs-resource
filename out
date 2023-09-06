@@ -71,7 +71,7 @@ if build.buildstate != "Successfully built":
 print(f"build {build.web_link} finished", file=sys.stderr)
 result = {
     "version": {"ref": str(build)},
-    "metadata": {"name": "link", "value": build.web_link},
+    "metadata": [{"name": "link", "value": build.web_link}],
 }
 
 json.dump(result, sys.stdout)
