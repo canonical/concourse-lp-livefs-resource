@@ -21,7 +21,7 @@ from launchpadlib.credentials import (
     AccessToken,
     RequestTokenAuthorizationEngine,
 )
-from launchpadlib.launchpad import Launchpad, SystemWideConsumer
+from launchpadlib.launchpad import Launchpad, Consumer
 from requests.auth import AuthBase
 
 from requests_oauthlib import OAuth1
@@ -33,7 +33,7 @@ class DummyCredentialStore(CredentialStore):
     def __init__(self, consumer_name, oauth_token, oauth_token_secret):
         super(DummyCredentialStore, self).__init__(credential_save_failed=None)
         self.credentials = Credentials()
-        self.credentials.consumer = SystemWideConsumer(consumer_name)
+        self.credentials.consumer = Consumer(consumer_name)
         self.credentials.access_token = AccessToken.from_params(
             {"oauth_token": oauth_token, "oauth_token_secret": oauth_token_secret}
         )
@@ -74,5 +74,5 @@ def login_with_oauth(
         credential_store=credstore,
         authorization_engine=authengine,
     )
-    auth = OAuth1(consumer_name, "", oauth_token, oauth_token_secret)
+    auth = OAuth1(consumer_name, oauth_token, oauth_token_secret)
     return lp, auth
