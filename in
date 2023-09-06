@@ -37,7 +37,7 @@ oauth_consumer_key = src.get("oauth_consumer_key")
 oauth_token = src.get("oauth_token")
 oauth_token_secret = src.get("oauth_token_secret")
 
-download_artifacts = params.get("download_artifacts", default=False)
+download_artifacts = params.get("download_artifacts", False)
 
 owner, _, distro, series, name = livefs.split("/")
 

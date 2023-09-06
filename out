@@ -57,17 +57,18 @@ build = f.requestBuild(
     pocket=pocket.title(),
     metadata_override=metadata,
 )
-print(f"weblink: {build.web_link}")
+print(f"weblink: {build.web_link}", file=sys.stderr)
 
-while not build.datebuilt:
-    print(f"buildstate: {build.buildstate}")
+while not build.datebuilt and build.buildstate != "Uploading build":
+    print(f"buildstate: {build.buildstate}", file=sys.stderr)
     time.sleep(60)
     build = lp.load(str(build)) # reload a resource
 
 if build.buildstate != "Successfully built":
-    print(f"ERROR: build {build.web_link} finished with {build.buildstate}")
+    print(f"ERROR: build {build.web_link} finished with \"{build.buildstate}\"", file=sys.stderr)
     exit(1)
 
+print(f"build {build.web_link} finished", file=sys.stderr)
 result = {
     "version": {"ref": str(build)},
     "metadata": {"name": "link", "value": build.web_link},
