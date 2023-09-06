@@ -24,7 +24,7 @@ import time
 payload = json.load(sys.stdin)
 
 src = payload["source"]
-params = payload["params"]
+params = payload.get("params", {})
 
 livefs = src.get("livefs")
 arch = src.get("arch", "amd64")

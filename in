@@ -28,7 +28,7 @@ payload = json.load(sys.stdin)
 
 src = payload["source"]
 ref = payload["version"]["ref"]
-params = payload["params"]
+params = payload.get("params", {})
 output = sys.argv[1]
 
 livefs = src.get("livefs")
