@@ -61,5 +61,7 @@ if cur_version == 0:
     # resource's inception).
     result = result[0:1]
 
+result.reverse() # the order is oldest first
+
 json.dump(result, sys.stdout)
 print()
