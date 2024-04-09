@@ -50,10 +50,9 @@ series = distro.getSeries(name_or_version=series)
 
 build = lp.load(ref)
 
+os.makedirs(output, exist_ok=True)
 if download_artifacts:
     files = build.getFileUrls()
-    os.makedirs(output, exist_ok=True)
-
     failed = 0
     for file in files:
         filename = urlparse(file).path.split("/")[-1]
@@ -70,6 +69,9 @@ if download_artifacts:
     if failed != 0:
         print(f"ERROR: {failed} file(s) failed to download.", file=sys.stderr)
         exit(1)
+else:
+    with open(os.path.join(output, "build.web_link"), "w") as f:
+        f.write(build.web_link)
 
 result = {
     "version": {"ref": str(build)},
