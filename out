@@ -61,7 +61,7 @@ print(f"weblink: {build.web_link}", file=sys.stderr)
 
 while not build.datebuilt or build.buildstate == "Uploading build":
     print(f"buildstate: {build.buildstate}", file=sys.stderr)
-    time.sleep(60)
+    time.sleep(300)
     build = lp.load(str(build)) # reload a resource
 
 if build.buildstate != "Successfully built":
